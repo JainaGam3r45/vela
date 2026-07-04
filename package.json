@@ -1,0 +1,21 @@
+{
+  "name": "vela",
+  "version": "0.0.1",
+  "private": true,
+  "description": "An experimental programming language.",
+  "type": "module",
+  "author": {
+    "name": "JainaGam3r45",
+    "url": "https://www.jifercraft.com"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/bun": "^1.2.19",
+    "typescript": "^5.8.3"
+  }
+}

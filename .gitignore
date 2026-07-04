@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+coverage/
+
+# environment files
+.env
+.env.*
+!.env.example
+
+# logs
+*.log
+
+# temporary files
+.tmp/
+temp/
+
+# editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# operating system
+.DS_Store
+Thumbs.db
