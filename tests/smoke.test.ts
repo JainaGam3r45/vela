@@ -1,7 +1,13 @@
 import { expect, test } from "bun:test";
 
-import { main } from "../src/index";
+import { runSource } from "../src/index";
 
-test("main devuelve un valor estable", () => {
-  expect(main()).toBe("ok");
+test("runs the hello print program", () => {
+  const printed: string[] = [];
+
+  runSource('print("hola")', (text) => {
+    printed.push(text);
+  });
+
+  expect(printed).toEqual(["hola"]);
 });
