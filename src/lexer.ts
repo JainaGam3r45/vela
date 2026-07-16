@@ -1,5 +1,7 @@
 export type TokenType =
+  | "Let"
   | "Identifier"
+  | "Equal"
   | "LeftParen"
   | "RightParen"
   | "String"
@@ -67,7 +69,7 @@ export function tokenize(source: string): Token[] {
     }
 
     return {
-      type: "Identifier",
+      type: lexeme === "let" ? "Let" : "Identifier",
       lexeme,
       line: startLine,
       column: startColumn,
@@ -110,6 +112,17 @@ export function tokenize(source: string): Token[] {
     const startLine = line;
     const startColumn = column;
     const char = peek();
+
+    if (char === "=") {
+      advance();
+      tokens.push({
+        type: "Equal",
+        lexeme: "=",
+        line: startLine,
+        column: startColumn,
+      });
+      continue;
+    }
 
     if (char === "(") {
       advance();

@@ -23,3 +23,17 @@ test("rejects unterminated strings", () => {
 test("rejects unexpected characters", () => {
   expect(() => tokenize("print@")).toThrow(LexerError);
 });
+
+test("tokenizes let bindings", () => {
+  const tokens = tokenize('let nombre = "vela"');
+
+  expect(tokens.map((token) => token.type)).toEqual([
+    "Let",
+    "Identifier",
+    "Equal",
+    "String",
+    "Eof",
+  ]);
+  expect(tokens[1]?.lexeme).toBe("nombre");
+  expect(tokens[3]?.lexeme).toBe("vela");
+});
