@@ -5,12 +5,25 @@ export type StringLiteral = {
   value: string;
 };
 
-export type PrintStmt = {
-  kind: "PrintStmt";
-  argument: StringLiteral;
+export type IdentifierExpr = {
+  kind: "IdentifierExpr";
+  name: string;
 };
 
-export type Statement = PrintStmt;
+export type Expression = StringLiteral | IdentifierExpr;
+
+export type LetStmt = {
+  kind: "LetStmt";
+  name: string;
+  value: StringLiteral;
+};
+
+export type PrintStmt = {
+  kind: "PrintStmt";
+  argument: Expression;
+};
+
+export type Statement = LetStmt | PrintStmt;
 
 export type Program = {
   kind: "Program";
@@ -43,14 +56,6 @@ export function parse(tokens: Token[]): Program {
     return previous();
   };
 
-  const match = (type: Token["type"]): boolean => {
-    if (!check(type)) {
-      return false;
-    }
-    advance();
-    return true;
-  };
-
   const expect = (type: Token["type"], message: string): Token => {
     if (check(type)) {
       return advance();
@@ -58,6 +63,43 @@ export function parse(tokens: Token[]): Program {
 
     const token = current();
     throw new ParserError(message, token.line, token.column);
+  };
+
+  const parseExpression = (): Expression => {
+    if (check("String")) {
+      const token = advance();
+      return {
+        kind: "StringLiteral",
+        value: token.lexeme,
+      };
+    }
+
+    if (check("Identifier")) {
+      const token = advance();
+      return {
+        kind: "IdentifierExpr",
+        name: token.lexeme,
+      };
+    }
+
+    const token = current();
+    throw new ParserError("expected expression", token.line, token.column);
+  };
+
+  const parseLetStmt = (): LetStmt => {
+    expect("Let", "expected 'let'");
+    const name = expect("Identifier", "expected variable name after let");
+    expect("Equal", "expected '=' after variable name");
+    const valueToken = expect("String", "expected string after '='");
+
+    return {
+      kind: "LetStmt",
+      name: name.lexeme,
+      value: {
+        kind: "StringLiteral",
+        value: valueToken.lexeme,
+      },
+    };
   };
 
   const parsePrintStmt = (): PrintStmt => {
@@ -72,22 +114,27 @@ export function parse(tokens: Token[]): Program {
     }
 
     expect("LeftParen", "expected '(' after print");
-    const argument = expect("String", "expected string argument");
-    expect("RightParen", "expected ')' after string");
+    const argument = parseExpression();
+    expect("RightParen", "expected ')' after argument");
 
     return {
       kind: "PrintStmt",
-      argument: {
-        kind: "StringLiteral",
-        value: argument.lexeme,
-      },
+      argument,
     };
+  };
+
+  const parseStatement = (): Statement => {
+    if (check("Let")) {
+      return parseLetStmt();
+    }
+
+    return parsePrintStmt();
   };
 
   const body: Statement[] = [];
 
   while (!check("Eof")) {
-    body.push(parsePrintStmt());
+    body.push(parseStatement());
   }
 
   return {

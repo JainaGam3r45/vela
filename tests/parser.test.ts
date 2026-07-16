@@ -27,3 +27,32 @@ test("rejects unknown identifiers", () => {
 test("rejects a missing closing parenthesis", () => {
   expect(() => parse(tokenize('print("hola"'))).toThrow(ParserError);
 });
+
+test("parses let bindings and print identifiers", () => {
+  const program = parse(tokenize('let nombre = "vela"\nprint(nombre)'));
+
+  expect(program).toEqual({
+    kind: "Program",
+    body: [
+      {
+        kind: "LetStmt",
+        name: "nombre",
+        value: {
+          kind: "StringLiteral",
+          value: "vela",
+        },
+      },
+      {
+        kind: "PrintStmt",
+        argument: {
+          kind: "IdentifierExpr",
+          name: "nombre",
+        },
+      },
+    ],
+  });
+});
+
+test("rejects let without a value", () => {
+  expect(() => parse(tokenize("let nombre ="))).toThrow(ParserError);
+});
